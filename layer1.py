@@ -47,6 +47,7 @@ freq_to_byte = dict((y,x) for x,y in byte_to_freq.items())
 def get_freq_from_byte(byte):
     top = (byte & 0b11110000) >> 4
     bottom = byte & 0b00001111
+
     return (byte_to_freq[top], byte_to_freq[bottom])
 
 def play_tones(f1):
@@ -74,6 +75,13 @@ def play_tones(f1):
 
     p.terminate()
     time.sleep(0.05)
+
+def play_byte(byte):
+    top, bottom = get_freq_from_byte(byte)
+    play_tones(FREQ_T1)
+    play_tones(top)
+    play_tones(FREQ_T2)
+    play_tones(bottom)
 
 class ByteRingBuffer:
     def __init__(self, size):
@@ -117,26 +125,16 @@ class Listener:
         if max_freq_tuple[1] > RECOGNIZE_THRESH and max_freq_tuple[0] != self.last_max:
             self.last_max = max_freq_tuple[0]
             ret = self.ring_buf.add(freq_to_byte[self.last_max])
-            if ret is not None:
-                print(ret, self.ring_buf.buffer)
-            # if ret: self.callback(freq_to_byte[ret])
+            if ret != None: self.callback(ret)
 
 def listener_func(byte):
     print(byte)
 listener = Listener(listener_func)
 
-# while True:
-#     for freq in freq_to_byte.keys():
-#         play_tones(freq)
-
 bytes = [i for i in range(255)]
 
 while True:
     for byte in bytes:
-        top, bottom = get_freq_from_byte(byte)
-        play_tones(FREQ_T1)
-        play_tones(top)
-        play_tones(FREQ_T2)
-        play_tones(bottom)
+        play_byte(byte)
 #
 #
