@@ -1,8 +1,5 @@
 from crc16 import crc16xmodem
-#from layer1 import send_byte
-
-def send_byte(a):
-	pass
+from layer1 import send_byte, Listener
 
 START_BYTE = 170
 STOP_BYTE = 13
@@ -52,7 +49,6 @@ def check_if_packet(byte : bytes):
 				continue
 
 		except IndexError:
-			print('Exception')
 			continue
 
 		# Packet slice
@@ -77,19 +73,20 @@ if __name__ == "__main__":
 	crc_top = crc >> 8
 	crc_bottom = crc & 0xFF
 
+	listener = Listener(callback=check_if_packet)
+	print(list(data))
+
 	packet = [START_BYTE, 5] + list(data) + [crc_top, crc_bottom, STOP_BYTE]
-	print(packet)
-
-	for b in packet:
-		check_if_packet(b)
-
-	data = str.encode('World!', 'ascii')
-	crc = crc16xmodem(data)
-	crc_top = crc >> 8
-	crc_bottom = crc & 0xFF
-
-	packet = [START_BYTE, 6] + list(data) + [crc_top, crc_bottom, STOP_BYTE]
-	print(packet)
-
-	for b in packet:
-		check_if_packet(b)
+	for byte in packet:
+		send_byte(byte)
+	#
+	# # data = str.encode('World!', 'ascii')
+	# # crc = crc16xmodem(data)
+	# # crc_top = crc >> 8
+	# # crc_bottom = crc & 0xFF
+	# #
+	# # packet = [START_BYTE, 6] + list(data) + [crc_top, crc_bottom, STOP_BYTE]
+	# # print(packet)
+	#
+	# for b in packet:
+	# 	check_if_packet(b)

@@ -76,7 +76,7 @@ def play_tones(f1):
     p.terminate()
     time.sleep(0.05)
 
-def play_byte(byte):
+def send_byte(byte):
     top, bottom = get_freq_from_byte(byte)
     play_tones(FREQ_T1)
     play_tones(top)
@@ -121,20 +121,9 @@ class Listener:
         fft = self.ear.fft[self.fftStartIdx:self.fftEndIdx]
         self.fft_dict = dict(zip(fftx,fft/self.maxFFT))
 
-        max_freq_tuple = max(listener.fft_dict.items(), key=operator.itemgetter(1))
+        max_freq_tuple = max(self.fft_dict.items(), key=operator.itemgetter(1))
         if max_freq_tuple[1] > RECOGNIZE_THRESH and max_freq_tuple[0] != self.last_max:
             self.last_max = max_freq_tuple[0]
             ret = self.ring_buf.add(freq_to_byte[self.last_max])
             if ret != None: self.callback(ret)
 
-def listener_func(byte):
-    print(byte)
-listener = Listener(listener_func)
-
-bytes = [i for i in range(255)]
-
-while True:
-    for byte in bytes:
-        play_byte(byte)
-#
-#
